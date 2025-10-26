@@ -9,6 +9,7 @@ Mobilizing communities to directly address childhood food insecurity by connecti
 ---
 
 ## 🚀 Features
+
 - Transparent, open-source platform
 - Connects children in need with donors and food providers
 - Community-driven support and engagement
@@ -16,6 +17,7 @@ Mobilizing communities to directly address childhood food insecurity by connecti
 - Secure and privacy-focused
 
 ## 🛠️ Tech Stack
+
 - **Frontend:** React (Vite, Bootstrap)
 - **Backend:** Node.js (Express)
 - **Database:** PostgreSQL
@@ -23,6 +25,7 @@ Mobilizing communities to directly address childhood food insecurity by connecti
 - **CI/CD:** GitHub Actions
 
 ## 📁 Project Structure
+
 ```text
 CapstoneProject2/
 ├── src/
@@ -39,6 +42,7 @@ CapstoneProject2/
 ```
 
 ## ⚡ Quick Start
+
 1. **Clone and setup:**
    ```bash
    git clone git@github.com:Muditha-Kumara/CapstoneProject2.git
@@ -56,18 +60,24 @@ CapstoneProject2/
 
 📖 **Detailed Setup:** See [Quick Setup Guide](./docs/QUICK_SETUP.md) for comprehensive instructions.
 
+For quick Windows PowerShell run instructions see: `docs/RUN_LOCALLY.md`.
+
 ## 🧪 Testing
+
 - Frontend: `npm test` in `src/frontend`
 - Backend: `npm test` in `src/backend`
 
 ## 🤝 Contributing
+
 1. Fork the repo and create your branch: `git checkout -b feature/your_feature`
 2. Commit your changes: `git commit -m "feat: add new feature"`
 3. Push to the branch: `git push origin feature/your_feature`
 4. Open a Pull Request
 
 📋 **Project Management:** See our comprehensive project management documentation:
+
 ## Required Reading
+
 - [Project Proposal](./docs/PROJECT_PROPOSAL.md) - Understand the project goals
 - [Development Guide](./docs/DEVELOPMENT_GUIDE.md) - Coding standards
 - [Project Management Plan](./docs/PROJECT_MANAGEMENT_PLAN.md) - Project Management Plan
@@ -81,6 +91,7 @@ CapstoneProject2/
 The backend uses Express and Swagger UI to provide interactive API documentation.
 
 ### Setup
+
 1. Go to the backend folder:
    ```bash
    cd src/backend
@@ -97,15 +108,18 @@ The backend uses Express and Swagger UI to provide interactive API documentation
 - Update the OpenAPI file to keep documentation in sync with your endpoints.
 
 ## 🗄️ Database Migrations & Seeding
+
 - Database migrations in `database/migrations` and seeders in `database/seeders` are automatically run by Postgres when the container is first created.
 - **Order matters:** Migration scripts should be numbered lower than seed scripts (e.g., `001_create_...`, `002_...`, then `100_seed_...`).
 - To re-seed the database in development, use Adminer or psql to run the seed scripts in `database/seeders`.
 - See `database/seeders/999_dev_reseed.sql` for a template to help with manual reseeding during development.
 
 ## 📄 License
+
 This project is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 ## 📬 Contact
+
 - Issues & Feedback: [GitHub Issues](https://github.com/Muditha-Kumara/CapstoneProject2/issues)
 
 ---

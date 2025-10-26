@@ -1,0 +1,22 @@
+version: "3.8"
+
+# Local override: load environment from .env or src/backend/.env.docker
+services:
+  backend:
+    env_file:
+      - ./src/backend/.env.docker
+  redis:
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password123}
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: nourishnet_mailhog
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8025/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

@@ -1,10 +1,12 @@
 -- Migration for Users table with balance
+-- Ensure pgcrypto extension is available for gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role TEXT NOT NULL CHECK (role IN ('donor', 'recipient', 'provider')),
+    role TEXT NOT NULL CHECK (role IN ('donor', 'recipient', 'provider', 'admin')),
     balance NUMERIC(12,2) DEFAULT 0.00,
     passport_number TEXT,
     id_number TEXT,

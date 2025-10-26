@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  # Production example showing usage of Docker secrets for sensitive values.
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: nourishnet
+      POSTGRES_USER: postgres
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    image: capstoneproject2-backend:latest
+    environment:
+      - NODE_ENV=production
+      # In production the secret files are mounted at /run/secrets/<name>.
+      # The application should read the password file directly or support the
+      # *_FILE convention (e.g. DATABASE_URL_FILE or POSTGRES_PASSWORD_FILE).
+      # Example runtime: the app can read /run/secrets/db_password to assemble
+      # the DATABASE_URL. We expose the file paths here so the entrypoint
+      # or runtime config can pick them up.
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+      - REDIS_PASSWORD_FILE=/run/secrets/redis_password
+      - EMAIL_PASSWORD_FILE=/run/secrets/email_pass
+    secrets:
+      - db_password
+      - redis_password
+      - email_pass
+
+secrets:
+  db_password:
+    file: ./secrets/db_password
+  redis_password:
+    file: ./secrets/redis_password
+  email_pass:
+    file: ./secrets/email_pass
+
+volumes:
+  postgres_data:

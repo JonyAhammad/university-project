@@ -1,14 +1,16 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL Database (with migrations and seeders)
   db:
     image: postgres:15
     container_name: nourishnet_db
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: nourishnet
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -22,33 +24,30 @@ services:
 
   # Backend API (Node.js, hot reload with nodemon)
   backend:
-    build: 
+    build:
       context: ./src/backend
       dockerfile: Dockerfile
     container_name: nourishnet_backend
+    # Use top-level .env for secrets in development. You may keep a separate
+    # src/backend/.env.docker if you have other dev-only settings.
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
-      - PORT=5000
-      - CORS_ORIGIN=http://localhost:3000
-      - DATABASE_URL=postgres://postgres:password123@db:5432/nourishnet
-
-      - EMAIL_USER=nourishnetworld@gmail.com
-      - EMAIL_PASS=tnnwndaewolinhal
-
-      - BASE_URL=http://localhost:5000
-
-      - JWT_SECRET=super-secret-jwt-key
-      - JWT_REFRESH_SECRET=super-secret-jwt-refresh-key
     ports:
       - "5000:5000"
     volumes:
+      - ./src/backend:/app
+      - /app/node_modules
       - ./docs/openapi.yaml:/docs/openapi.yaml
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     command: npm run dev
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5000/api/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -69,7 +68,7 @@ services:
       - /app/node_modules
     depends_on:
       - backend
-    command: npm start
+    command: npm run dev
     stdin_open: true
     tty: true
 
@@ -77,15 +76,27 @@ services:
   redis:
     image: redis:7-alpine
     container_name: nourishnet_redis
+    env_file:
+      - .env
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
+    security_opt:
+      - no-new-privileges:true
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 26677
+        hard: 46677
 
   # Adminer for database management (development only)
   adminer:
@@ -97,6 +108,28 @@ services:
       - db
     environment:
       ADMINER_DEFAULT_SERVER: db
+
+  # One-time initializer to create a test database and apply migrations there
+  db-init:
+    image: postgres:15
+    container_name: nourishnet_db_init
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./database/migrations:/migrations:ro
+    entrypoint: null
+    command:
+      [
+        "sh",
+        "-c",
+        'until pg_isready -h db -U postgres; do sleep 1; done; PGPASSWORD=$$POSTGRES_PASSWORD psql -h db -U postgres -c "CREATE DATABASE nourishnet_test;" || true; for f in /migrations/*.sql; do echo ''Applying'' $$f ''to nourishnet_test''; PGPASSWORD=$$POSTGRES_PASSWORD psql -h db -U postgres -d nourishnet_test -f "$$f" || true; done; echo ''db-init complete'';',
+      ]
+    env_file:
+      - .env
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: "no"
 
 volumes:
   postgres_data:

@@ -1,12 +1,39 @@
+# Database Configuration
+# Development database URL (uncomment for local development)
 #DATABASE_URL=postgres://postgres:password123@localhost:5432/nourishnet
-
+# Docker database URL
 DATABASE_URL=postgres://postgres:password123@db:5432/nourishnet
 
+# Test Database Configuration
+TEST_DB_HOST=localhost
+TEST_DB_PORT=5432
+TEST_DB_NAME=nourishnet_test
+TEST_DB_USER=postgres
+TEST_DB_PASSWORD=password123
+
+# Email Configuration
 EMAIL_USER=nourishnetworld@gmail.com
-EMAIL_PASS=tnnwndaewolinhal
+# DO NOT store email password in plain text, use environment variable instead
+EMAIL_PASS=${NOURISH_EMAIL_PASS}
+EMAIL_FROM="NourishNet Support <nourishnetworld@gmail.com>"
+EMAIL_RETRY_ATTEMPTS=3
+EMAIL_RETRY_DELAY=1000
 
+# Application Configuration
+NODE_ENV=development
 BASE_URL=http://localhost:5000
+API_VERSION=v1
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX=100
 
-JWT_SECRET=super-secret-jwt-key
-JWT_REFRESH_SECRET=super-secret-jwt-refresh-key
+# JWT Configuration
+# DO NOT use these values in production
+JWT_SECRET=${NOURISH_JWT_SECRET}
+JWT_REFRESH_SECRET=${NOURISH_JWT_REFRESH_SECRET}
+JWT_ACCESS_EXPIRY=15m
+JWT_REFRESH_EXPIRY=7d
 
+# Security Configuration
+COOKIE_SECRET=${NOURISH_COOKIE_SECRET}
+BCRYPT_ROUNDS=12
+CORS_ORIGINS=http://localhost:3000,http://localhost:5000

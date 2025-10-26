@@ -1,0 +1,31 @@
+# Exclude node_modules and local artifacts from Docker build context
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.env
+.env.*
+.vscode
+.idea
+*.log
+logs
+*.sqlite
+*.db
+Thumbs.db
+desktop.ini
+*.lnk
+.DS_Store
+
+# Exclude OneDrive specific or sync metadata
+*.wbk
+*.tmp
+~* 
+
+# Exclude local build artifacts
+dist
+build
+
+# Keep package files copied separately
+!package*.json

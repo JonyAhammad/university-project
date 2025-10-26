@@ -585,27 +585,73 @@ describe('Auth Controller Unit Tests', () => {
       });
     });
 
-    it('28. should handle database error in jwt callback', async () => {
+    it('28. should handle database error properly', async () => {
       req.cookies.refreshToken = 'valid-refresh-token';
 
-      // Mock jwt.verify to call callback with error from db query
-      jwt.verify.mockImplementation(async (token, secret, callback) => {
-        try {
-          const payload = { userId: 1 };
-          await callback(null, payload);
-        } catch (error) {
-          // Error happens in callback but isn't caught by outer try-catch
-          // This is a known limitation of the current implementation
-        }
+      jwt.verify.mockImplementation((token, secret, callback) => {
+        callback(null, { userId: 1 });
       });
 
-      db.query.mockRejectedValue(new Error('Database error'));
+      const dbError = new Error('Database error');
+      db.query.mockRejectedValue(dbError);
 
-      // The function will be called but the error won't be properly handled
-      // because it occurs inside the jwt.verify callback
-      await expect(
-        authController.refreshToken(req, res)
-      ).resolves.not.toThrow();
+      await authController.refreshToken(req, res);
+
+      expect(console.error).toHaveBeenCalledWith(dbError);
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Server error',
+      });
+    });
+
+    it('29. should handle malformed refresh token', async () => {
+      req.cookies.refreshToken = 'malformed-token';
+
+      jwt.verify.mockImplementation((token, secret, callback) => {
+        callback(new Error('JsonWebTokenError: jwt malformed'), null);
+      });
+
+      await authController.refreshToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Invalid refresh token',
+      });
+    });
+
+    it('30. should handle expired refresh token', async () => {
+      req.cookies.refreshToken = 'expired-token';
+
+      jwt.verify.mockImplementation((token, secret, callback) => {
+        callback(new Error('TokenExpiredError: jwt expired'), null);
+      });
+
+      await authController.refreshToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Invalid refresh token',
+      });
+    });
+
+    it('31. should handle deactivated user', async () => {
+      req.cookies.refreshToken = 'valid-refresh-token';
+
+      jwt.verify.mockImplementation((token, secret, callback) => {
+        callback(null, { userId: 1 });
+      });
+
+      // Mock user found but deactivated
+      db.query.mockResolvedValueOnce({
+        rows: [{ ...mockUser, is_active: false }],
+      });
+
+      await authController.refreshToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'User not found',
+      });
     });
   });
 });
