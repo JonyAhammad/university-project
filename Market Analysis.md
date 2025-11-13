@@ -124,15 +124,14 @@ tracking, plus employee volunteering for tech and strategy support.
 
 ### **NourishNet Operational Flow Diagram**
 
-``` mermaid
 graph TD
-A[Donors] --> B[Mobile App]
-B --> C[Food Providers (Restaurants/Cafes)]
-C --> D[Volunteers (Community Members)]
+A[Donors] --> B[ Application]
+B --> C[Food Providers - Restaurants & Cafes]
+C --> D[Volunteers - Community Members]
 D --> E[Children in Need]
 B --> F[Impact Data Dashboard]
 F --> A
-```
+
 
 **Explanation:**\
 - Donors use the mobile app to fund or provide meals.\
