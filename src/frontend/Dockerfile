@@ -2,7 +2,9 @@
 FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+# Install including dev dependencies to ensure Vite plugins are available in the dev image
+RUN npm install --legacy-peer-deps --include=dev
 COPY . .
 EXPOSE 3000
-CMD ["npm","run","dev"]
+# Bind Vite to 0.0.0.0 so the container port is reachable from the host
+CMD ["npx","vite","--host","0.0.0.0"]
